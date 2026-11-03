@@ -200,6 +200,8 @@ Mention file paths and line numbers. Do not call any tools.
         stream=True,
     )
 
+    answer_text = ""
+
     for chunk in stream:
 
         if not chunk.choices:
@@ -208,9 +210,16 @@ Mention file paths and line numbers. Do not call any tools.
         piece = chunk.choices[0].delta.content
 
         if piece:
+            answer_text += piece
             yield {"type": "token", "data": piece}
 
-    yield {"type": "sources", "data": unique_sources(all_sources)}
+    # Keep only the sources whose file name appears in the answer
+    cited = [s for s in all_sources if s["file_path"].split("/")[-1] in answer_text]
+
+    if len(cited) == 0:
+        cited = all_sources
+
+    yield {"type": "sources", "data": unique_sources(cited)}
 
 
 # ============================================================
