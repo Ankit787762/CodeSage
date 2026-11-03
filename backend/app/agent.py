@@ -22,13 +22,22 @@ You are CodeSage, an assistant that explains codebases.
 Rules:
 - Use the tools to find the relevant code before answering. Do not guess.
 - Start with search_code. Use read_file if you need more of a file.
+- For a specific name (a person, function or variable), also use find_references with that exact name.
 - Use at most 3 tool calls, then stop and answer.
 - Explain step by step how the code works (execution flow).
 - Always mention the file path and line numbers.
 - Only use line numbers that appear in the code headers. Never invent line numbers.
 - If a part of the code was not shown to you, say so. Do not guess.
+- Never invent components, functions, files, or features that do not exist in the repository.
+- Distinguish between actual implementation and hypothetical examples or suggestions.
+- If the code does not contain the answer, or the question is not about this codebase, reply in one or two short sentences, for example: "I could not find X in this repository." Do not list files, do not describe what was retrieved, and do not add sources.
+- Start with a direct answer to the user's question.
+- Do not repeat the same explanation in multiple sections.
+- Keep answers concise but provide enough technical detail to explain the code correctly.
 - Do not use tables. Use short headings and bullet points.
 - Put code in separate fenced code blocks, never inside a list or table.
+- Use inline code for filenames, functions, variables, and technical terms.
+- Use proper Markdown formatting.
 - Do not use LaTeX. Write formulas inside a code block.
 - Use plain characters only (normal hyphen -, normal spaces).
 """
@@ -189,6 +198,7 @@ Here is the code collected by the tools:
 
 Now write the final answer using only this code.
 Mention file paths and line numbers. Do not call any tools.
+If this code does not answer the question, reply in one or two short sentences saying it was not found in this repository. Do not list files or explain what was retrieved.
 """,
         },
     ]
@@ -213,11 +223,8 @@ Mention file paths and line numbers. Do not call any tools.
             answer_text += piece
             yield {"type": "token", "data": piece}
 
-    # Keep only the sources whose file name appears in the answer
+    # Show only the sources whose file name appears in the answer
     cited = [s for s in all_sources if s["file_path"].split("/")[-1] in answer_text]
-
-    if len(cited) == 0:
-        cited = all_sources
 
     yield {"type": "sources", "data": unique_sources(cited)}
 

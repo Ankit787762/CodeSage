@@ -13,6 +13,7 @@ from qdrant_client.models import (
     FieldCondition,
     MatchValue,
     PayloadSchemaType,
+    FilterSelector,
 )
 
 from app import config
@@ -128,6 +129,44 @@ def search(repo_id, query_vector, top_k):
         )
 
     return chunks
+
+
+# ============================================================
+# PART 5B — COUNT AND DELETE CHUNKS OF ONE REPO
+# ============================================================
+
+
+def count_chunks(repo_id):
+
+    if not client.collection_exists(config.COLLECTION_NAME):
+        return 0
+
+    repo_filter = Filter(
+        must=[FieldCondition(key="repo_id", match=MatchValue(value=repo_id))]
+    )
+
+    result = client.count(
+        collection_name=config.COLLECTION_NAME,
+        count_filter=repo_filter,
+        exact=True,
+    )
+
+    return result.count
+
+
+def delete_repo_chunks(repo_id):
+
+    if not client.collection_exists(config.COLLECTION_NAME):
+        return
+
+    repo_filter = Filter(
+        must=[FieldCondition(key="repo_id", match=MatchValue(value=repo_id))]
+    )
+
+    client.delete(
+        collection_name=config.COLLECTION_NAME,
+        points_selector=FilterSelector(filter=repo_filter),
+    )
 
 
 # ============================================================

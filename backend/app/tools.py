@@ -75,7 +75,7 @@ def find_references(repo_id, symbol):
 
         for number, line in enumerate(file["content"].split("\n"), start=1):
 
-            if symbol in line:
+            if symbol.lower() in line.lower():
                 matches.append(f"{file['file_path']}:{number}: {line.strip()}")
                 sources.append(
                     {

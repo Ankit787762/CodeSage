@@ -33,3 +33,16 @@ class ChatRequest(BaseModel):
 class ImpactRequest(BaseModel):
     repo_id: str
     change: str = Field(min_length=3, max_length=1000)
+
+
+# ============================================================
+# PART 5 — REPO INFO (for the repository list)
+# ============================================================
+
+
+class RepoInfo(BaseModel):
+    repo_id: str
+    name: str
+    files_indexed: int
+    chunks_indexed: int
+    created: float

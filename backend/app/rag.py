@@ -12,7 +12,7 @@ from app import vector_store
 # PART 2 — CONNECT TO GROQ
 # ============================================================
 
-groq_client = Groq(api_key=config.GROQ_API_KEY)
+groq_client = Groq(api_key=config.GROQ_API_KEY, timeout=60, max_retries=3)
 
 
 # ============================================================
