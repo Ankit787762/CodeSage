@@ -3,10 +3,39 @@
 // ============================================================
 
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 
 // ============================================================
-// PART 2 — ONE MESSAGE (user or assistant)
+// PART 2 — GROUP SOURCES BY FILE
+// ============================================================
+
+function groupSources(sources) {
+
+  const groups = {};
+
+  for (const source of sources) {
+
+    const lines =
+      source.start_line === source.end_line
+        ? `${source.start_line}`
+        : `${source.start_line}-${source.end_line}`;
+
+    if (!groups[source.file_path]) {
+      groups[source.file_path] = [];
+    }
+
+    if (!groups[source.file_path].includes(lines)) {
+      groups[source.file_path].push(lines);
+    }
+  }
+
+  return Object.entries(groups);
+}
+
+
+// ============================================================
+// PART 3 — ONE MESSAGE (user or assistant)
 // ============================================================
 
 export default function Message({ message }) {
@@ -31,8 +60,8 @@ export default function Message({ message }) {
       )}
 
       {message.text && (
-        <div className="prose prose-sm prose-invert max-w-none">
-          <ReactMarkdown>{message.text}</ReactMarkdown>
+        <div className="prose prose-sm prose-invert max-w-none overflow-x-auto">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.text}</ReactMarkdown>
         </div>
       )}
 
@@ -44,12 +73,13 @@ export default function Message({ message }) {
         <div className="mt-4 border-t border-slate-800 pt-3">
           <p className="mb-2 text-xs uppercase tracking-wide text-slate-500">Sources</p>
           <div className="flex flex-wrap gap-2">
-            {message.sources.map((source, index) => (
+            {groupSources(message.sources).map(([path, lines]) => (
               <span
-                key={index}
-                className="rounded bg-slate-800 px-2 py-1 font-mono text-xs text-sky-300"
+                key={path}
+                className="rounded bg-slate-800 px-2 py-1 font-mono text-xs"
               >
-                {source.file_path} : {source.start_line}-{source.end_line}
+                <span className="text-sky-300">{path}</span>
+                <span className="text-slate-500"> : {lines.join(", ")}</span>
               </span>
             ))}
           </div>

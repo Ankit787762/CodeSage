@@ -8,7 +8,7 @@ from app import config
 from app import rag
 from app.ingestion import get_code_files
 
-MAX_TOOL_CHARS = 6000
+MAX_TOOL_CHARS = 20000
 
 
 # ============================================================
